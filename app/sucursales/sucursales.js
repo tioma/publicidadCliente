@@ -136,6 +136,8 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 			telefonos: [4561321, 4896549, 651321989, 96846513]
 		};
 
+		$scope.imageSelected = false;
+
 		var canvas = document.getElementById("canvasImagen");
 		var context = canvas.getContext("2d");
 
@@ -157,6 +159,7 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 						//console.log(fileList);
 						//var otroReader = new FileReader();
 						context.drawImage(imagen, 0, 0, 150, imagesService.getImageProportion(imagen, 150));
+						$scope.imageSelected = true;
 						/*fileList.forEach(function(imageBlob){
 						 otroReader.onload = function(ev){
 						 $scope.uploader.addToQueue(ev.target.result);
@@ -194,6 +197,7 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 				},
 				telefonos: [4561321, 4896549, 651321989, 96846513]
 			};
+			$scope.imageSelected = false;
 			$scope.$broadcast('uploadFinish');
 		};
 

@@ -29,6 +29,7 @@
 	<!-- CONTROLLERS -->
 	<script src="sucursales/sucursales.js"></script>
 	<script src="login/login.js"></script>
+	<script src="catalogo/catalogo.js"></script>
 	<!-- DIRECTIVES -->
 	<script src="sucursales/directives.js"></script>
 	<!-- FACTORIES -->
@@ -58,9 +59,14 @@
 			<a class="navbar-brand" href="#">Obi-Wan</a>
 		</div>
 
-		<div class="collapse navbar-collapse">
-			<ul class="nav navbar-nav">
-				<li><a ui-sref="sucursales">Sucursales</a></li>
+		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<li>
+					<a href ui-sref="sucursales">Sucursales</a>
+				</li>
+				<li>
+					<a href ui-sref="catalogo">Catalogo</a>
+				</li>
 			</ul>
 		</div>
 	</div>
