@@ -12,7 +12,9 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 		$scope.calendarioHasta = false;
 
 		$scope.uploader = new FileUploader({
-			url: 'http://localhost:3002/sucursales/nueva/imagen/'
+			alias: 'sucursal',
+			url: 'http://localhost:3002/sucursales/nueva/imagen/',
+			removeAfterUpload: true
 		});
 
 		/*sucursalesFactory.obtenerSucursales(function(data){
@@ -130,11 +132,9 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 			horario: {
 				desde: new Date(2016, 1, 1, 9),
 				hasta: new Date(2016, 1, 1, 19)
-			}
+			},
+			telefonos: [4561321, 4896549, 651321989, 96846513]
 		};
-
-		$scope.imageSelected = false;
-		$scope.imagenPath = '';
 
 		var canvas = document.getElementById("canvasImagen");
 		var context = canvas.getContext("2d");
@@ -142,49 +142,84 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 		context.fillText("Arrastre una imagen aquí", 15, 60);
 
 		$scope.fileSelect = function(files){
-			var file = files[0];
-			var reader = new FileReader();
-			$scope.uploader.clearQueue();
-			$scope.uploader.addToQueue(file);
+			if (files.length > 0){
+				var file = files[0];
+				var reader = new FileReader();
+				$scope.uploader.clearQueue();
+				$scope.uploader.addToQueue(file);
 
-			reader.onload = function(event){
-				var imagen = new Image();
-				imagen.src = event.target.result;
+				reader.onload = function(event){
+					var imagen = new Image();
+					imagen.src = event.target.result;
 
-				imagen.onload = function() {
-					//var fileList = imagesService.getImagesResize(imagen);
-					//console.log(fileList);
-					//var otroReader = new FileReader();
-					context.drawImage(imagen, 0, 0, 150, imagesService.getImageProportion(imagen, 150));
-					/*fileList.forEach(function(imageBlob){
-						otroReader.onload = function(ev){
-							$scope.uploader.addToQueue(ev.target.result);
-						};
-						otroReader.readAsDataURL(imageBlob);
-					})*/
+					imagen.onload = function() {
+						//var fileList = imagesService.getImagesResize(imagen);
+						//console.log(fileList);
+						//var otroReader = new FileReader();
+						context.drawImage(imagen, 0, 0, 150, imagesService.getImageProportion(imagen, 150));
+						/*fileList.forEach(function(imageBlob){
+						 otroReader.onload = function(ev){
+						 $scope.uploader.addToQueue(ev.target.result);
+						 };
+						 otroReader.readAsDataURL(imageBlob);
+						 })*/
 
 
+					};
 				};
-			};
 
-			reader.readAsDataURL(file);
+				reader.readAsDataURL(file);
+			}
 		};
 
 		$scope.uploader.onProgressItem = function(fileItem, progress) {
 			console.info('onProgressItem', fileItem, progress);
 		};
 
+		$scope.uploader.onSuccessItem = function(item, response, status, headers){
+			$scope.sucursal = {
+				nombre: '',
+				descripcion: '',
+				direccion: '',
+				ubicacion: {
+					latitud: '',
+					longitud: ''
+				},
+				localidad: '',
+				provincia: '',
+				pais: '',
+				horario: {
+					desde: new Date(2016, 1, 1, 9),
+					hasta: new Date(2016, 1, 1, 19)
+				},
+				telefonos: [4561321, 4896549, 651321989, 96846513]
+			};
+			$scope.$broadcast('uploadFinish');
+		};
+
+		$scope.borrarCampo = function(campo){
+			$scope.sucursal[campo] = '';
+			if (campo == 'direccion'){
+				$scope.sucursal.ubicacion.latitud = '';
+				$scope.sucursal.ubicacion.longitud = '';
+				$scope.sucursal.pais = '';
+				$scope.sucursal.provincia = '';
+				$scope.sucursal.localidad = '';
+			}
+		};
+
 		$scope.guardarSucursal = function(){
 			/*console.log($scope.uploader.getReadyItems());
 			console.log($scope.uploader.getNotUploadedItems());
 			console.log($scope.uploader.queue);*/
-			sucursalesFactory.guardarSucursal($scope.sucursal, function(data){
-				console.log(data);
-				if ($scope.uploader.queue.length > 0){
-					var fileItem = $scope.uploader.queue[0];
-					fileItem.url = fileItem.url + data._id;
-					fileItem.alias = 'sucursal';
-					$scope.uploader.uploadAll();
+			sucursalesFactory.guardarSucursal($scope.sucursal, function(response){
+				console.log(response);
+				if (response.statusText == 'OK'){
+					if ($scope.uploader.queue.length > 0){
+						var fileItem = $scope.uploader.queue[0];
+						fileItem.url = fileItem.url + response.data._id;
+						$scope.uploader.uploadAll();
+					}
 				}
 			})
 		};

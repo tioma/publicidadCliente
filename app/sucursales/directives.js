@@ -14,6 +14,9 @@ myApp.directive('fileChange', function(){
 					scope.handler({files: event.target.files})
 				})
 			})
+			scope.$on('uploadFinish', function(){
+				element.val(null);
+			})
 		}
 	}
 });

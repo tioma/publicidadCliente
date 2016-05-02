@@ -8,7 +8,7 @@
 		<fieldset>
 			<legend>Nueva sucursal</legend>
 			<div class="form-group col-md-12 col-lg-12 pull-right">
-				<canvas class="canvas-thumbnail" id="canvasImagen" ng-class="imageSelected ? '' : 'my-drop-zone'" droppable drop="fileSelect(files)" ></canvas>
+				<canvas class="pull-right" id="canvasImagen" width="320" height="120" ng-class="imageSelected ? '' : 'my-drop-zone'" droppable drop="fileSelect(files)" ></canvas>
 			</div>
 			<div class="form-group col-md-12 col-lg-12">
 				<div class="input-group">
@@ -17,7 +17,7 @@
 					</span>
 					<input type="text" class="form-control" ng-model="sucursal.nombre" id="sucursalNombre" placeholder="Nombre de la sucursal">
 					<span class="input-group-btn">
-						<button class="btn btn-default" ng-click="borrarCampo('nombre')"><span class="glyphicon glyphicon-remove"></span></button>
+						<button class="btn btn-default" ng-click="borrarCampo(nombre)"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
 				</div>
 			</div>
@@ -26,21 +26,13 @@
 					<span class="input-group-addon">
 						Dirección
 					</span>
-					<input type="text" class="form-control" ng-model="sucursal.direccion" id="sucursalDireccion" placeholder="Dirección de la sucursal"  typeahead-on-select="getAddressSelected($item)" uib-typeahead="adress.formatted_address for adress in getAdress($viewValue)" typeahead-editable="false" autocomplete="off">
-					<span class="input-group-btn">
-						<button type="button" class="btn btn-default" ng-click="borrarCampo('direccion')"><span class="glyphicon glyphicon-remove"></span></button>
-					</span>
+					<input type="text" class="form-control" ng-model="sucursal.direccion" id="sucursalDireccion" placeholder="Dirección de la sucursal"  typeahead-on-select="getAddressSelected($item)" uib-typeahead="adress.formatted_address for adress in getAdress($viewValue)">
 				</div>
 			</div>
 			<div class="form-group col-md-12 col-lg-12">
-				<div class="input-group">
-					<span class="input-group-addon">
-						Teléfonos
-					</span>
-					<input type="text" class="form-control" ng-model="sucursal.telefonos" id="sucursalTelefono" placeholder="Teléfonos separados por coma" ng-blur="agregarTelefonos()">
-					<span class="input-group-btn">
-						<button type="button" class="btn btn-default" ng-click="borrarCampo('telefonos')"><span class="glyphicon glyphicon-remove"></span></button>
-					</span>
+				<label for="sucursalTelefono" class="col-lg-2 control-label">Teléfonos</label>
+				<div class="col-lg-10">
+					<input type="text" class="form-control" ng-model="telefonos" id="sucursalTelefono" placeholder="Teléfonos separados por coma" ng-blur="agregarTelefonos()">
 				</div>
 			</div>
 			<div class="form-group col-md-12 col-lg-6">

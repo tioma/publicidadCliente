@@ -2,6 +2,10 @@ html, body {
 	height: 100%;
 }
 
+.canvas-thumbnail {
+	width: 100%;
+}
+
 .my-drop-zone {
 	border: dotted 3px lightgray
 }
