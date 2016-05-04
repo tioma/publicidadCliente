@@ -9,7 +9,8 @@ var myApp = angular.module('pruebaApp', [
 	'uiGmapgoogle-maps',
 	'ngSanitize',
 	'angularFileUpload',
-	'dialogs.main'
+	'dialogs.main',
+	'ngTagsInput'
 ]).
 config(['$urlRouterProvider', '$stateProvider', function($urlRouterProvider, $stateProvider) {
 	$urlRouterProvider.otherwise('/login');

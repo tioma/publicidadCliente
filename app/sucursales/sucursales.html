@@ -37,7 +37,8 @@
 					<span class="input-group-addon">
 						Teléfonos
 					</span>
-					<input type="text" class="form-control" ng-model="sucursal.telefonos" id="sucursalTelefono" placeholder="Teléfonos separados por coma" ng-blur="agregarTelefonos()" ng-required="true">
+					<tags-input ng-model="sucursal.telefonos" ng-blur="verTelefonos()" min-length="1" allowed-tags-pattern="^[0-9]+$" ng-required="true" placeholder="Agrega un teléfono" display-property="numero" on-tag-added="agregarTelefonos($tag)"></tags-input>
+					<!--<input type="text" class="form-control" ng-model="sucursal.telefonos" id="sucursalTelefono" placeholder="Teléfonos separados por coma" ng-blur="agregarTelefonos()" ng-required="true">-->
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default" ng-click="borrarCampo('telefonos')"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
