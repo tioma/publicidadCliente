@@ -216,10 +216,6 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 			nuevoTelefono.numero = parseInt(nuevoTelefono.numero);
 		};
 
-		$scope.verTelefonos = function(){
-			console.log($scope.sucursal.telefonos);
-		};
-
 		$scope.guardarSucursal = function(){
 			/*console.log($scope.uploader.getReadyItems());
 			console.log($scope.uploader.getNotUploadedItems());
