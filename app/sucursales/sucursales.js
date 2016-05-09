@@ -133,7 +133,7 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 				desde: new Date(2016, 1, 1, 9),
 				hasta: new Date(2016, 1, 1, 19)
 			},
-			telefonos: [4561321, 4896549, 651321989, 96846513]
+			telefonos: []
 		};
 
 		$scope.imageSelected = false;
@@ -155,19 +155,8 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 					imagen.src = event.target.result;
 
 					imagen.onload = function() {
-						//var fileList = imagesService.getImagesResize(imagen);
-						//console.log(fileList);
-						//var otroReader = new FileReader();
 						context.drawImage(imagen, 0, 0, 150, imagesService.getImageProportion(imagen, 150));
 						$scope.imageSelected = true;
-						/*fileList.forEach(function(imageBlob){
-						 otroReader.onload = function(ev){
-						 $scope.uploader.addToQueue(ev.target.result);
-						 };
-						 otroReader.readAsDataURL(imageBlob);
-						 })*/
-
-
 					};
 				};
 
@@ -195,7 +184,7 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 					desde: new Date(2016, 1, 1, 9),
 					hasta: new Date(2016, 1, 1, 19)
 				},
-				telefonos: [4561321, 4896549, 651321989, 96846513]
+				telefonos: []
 			};
 			$scope.imageSelected = false;
 			$scope.$broadcast('uploadFinish');
@@ -217,11 +206,8 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 		};
 
 		$scope.guardarSucursal = function(){
-			/*console.log($scope.uploader.getReadyItems());
-			console.log($scope.uploader.getNotUploadedItems());
-			console.log($scope.uploader.queue);*/
+
 			sucursalesFactory.guardarSucursal($scope.sucursal, function(response){
-				console.log(response);
 				if (response.statusText == 'OK'){
 					if ($scope.uploader.queue.length > 0){
 						var fileItem = $scope.uploader.queue[0];

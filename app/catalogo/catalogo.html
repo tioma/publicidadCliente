@@ -4,7 +4,7 @@
 		<h1>Productos</h1>
 	</div>
 
-	<form class="col-lg-6 well form-horizontal">
+	<form class="col-lg-6 well form-horizontal" ng-submit="guardarProducto()">
 		<fieldset>
 			<legend>Nuevo producto</legend>
 			<div class="form-group col-md-12 col-lg-12 pull-right">
@@ -15,7 +15,7 @@
 					<span class="input-group-addon">
 						Nombre
 					</span>
-					<input type="text" class="form-control" ng-model="producto.nombre" placeholder="Nombre del producto">
+					<input type="text" class="form-control" ng-model="producto.nombre" placeholder="Nombre del producto" ng-required="true">
 					<span class="input-group-btn">
 						<button class="btn btn-default" ng-click="borrarCampo('nombre')"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
@@ -26,7 +26,7 @@
 					<span class="input-group-addon">
 						Descripción
 					</span>
-					<textarea type="text" class="form-control" ng-model="producto.descripcion" placeholder="Descripción del producto"></textarea>
+					<textarea rows="2" style="resize: none" class="form-control" ng-model="producto.descripcion" placeholder="Descripción del producto" ng-required="true"></textarea>
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default" ng-click="borrarCampo('descripcion')"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
@@ -37,7 +37,7 @@
 					<span class="input-group-addon">
 						Código
 					</span>
-					<input type="text" class="form-control" ng-model="producto.codigo" placeholder="Código del producto">
+					<input type="text" class="form-control" ng-model="producto.codigo" placeholder="Código del producto" ng-required="true">
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default" ng-click="borrarCampo('codigo')"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
@@ -48,7 +48,7 @@
 					<span class="input-group-addon">
 						Precio
 					</span>
-					<input type="text" class="form-control" ng-model="producto.precio" placeholder="Precio del producto">
+					<input type="text" class="form-control" ng-model="producto.precio" placeholder="Precio del producto" ng-required="true">
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default" ng-click="borrarCampo('precio')"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
@@ -59,7 +59,11 @@
 					<span class="input-group-addon">
 						Sucursales
 					</span>
-					<input type="text" class="form-control" ng-model="producto.sucursales">
+					<tags-input ng-model="producto.sucursales" display-property="nombre" placeholder="Agregue una sucursal" add-from-autocomplete-only="true" add-on-enter="false" ng-required="true">
+						<auto-complete source="buscarSucursales($query)"
+						               min-length="1"
+						               template="autocomplete-template"></auto-complete>
+					</tags-input>
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default" ng-click="borrarCampo('sucursales')"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
@@ -70,7 +74,7 @@
 					<span class="input-group-addon">
 						Etiquetas
 					</span>
-					<input type="text" class="form-control" ng-model="producto.etiquetas" >
+					<tags-input ng-model="producto.etiquetas" placeholder="Agregue una etiqueta"></tags-input>
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default" ng-click="borrarCampo('etiquetas')"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
@@ -93,3 +97,15 @@
 		</fieldset>
 	</form>
 </div>
+
+<script type="text/ng-template" id="autocomplete-template">
+	<div class="autocomplete-template">
+		<div class="left-panel">
+			<img ng-src="http://localhost:3002/sucursales/imagen/{{data._id}}">
+		</div>
+		<div class="right-panel">
+			<span ng-bind-html="$highlight($getDisplayText())"></span>
+			<!--<span>{{ data.direccion }}</span>-->
+		</div>
+	</div>
+</script>

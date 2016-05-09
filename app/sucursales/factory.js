@@ -14,9 +14,9 @@ myApp.factory('sucursalesFactory', ['$http', 'connectionService', function($http
 				callback(response);
 			})
 		},
-		obtenerSucursales: function(callback){
+		obtenerSucursales: function(param, callback){
 			var inserturl = connectionService.serverUrl + '/sucursales/';
-			$http.get(inserturl).then(function(response){
+			$http.get(inserturl, {params: param }).then(function(response){
 				callback(response);
 			}, function(response){
 				callback(response);
