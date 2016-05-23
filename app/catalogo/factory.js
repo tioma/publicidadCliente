@@ -4,12 +4,17 @@
 myApp.factory('catalogoFactory', ['$http', 'connectionService', function($http, connectionService){
 
 	return {
-		obtenerProductos: function(callback){
-
+		obtenerProductos: function(param, callback){
+			var inserturl = connectionService.serverUrl + '/productos/';
+			$http.get(inserturl, {params: param }).then(function(response){
+				callback(response);
+			}, function(response){
+				callback(response);
+			})
 		},
 		guardarProducto: function(dataProducto, callback){
 			var inserturl = connectionService.serverUrl + '/productos/nuevo';
-			$http.post(inserturl, sucursal).then(function(response){
+			$http.post(inserturl, dataProducto).then(function(response){
 				console.log(response);
 				callback(response);
 			}, function(response){

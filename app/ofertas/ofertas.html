@@ -1,0 +1,166 @@
+<div class="container col-lg-12">
+
+	<div class="page-header">
+		<h1>Ofertas</h1>
+	</div>
+
+	<form class="col-lg-6 well form-horizontal" ng-submit="guardarOferta()">
+		<fieldset>
+			<legend>Nueva oferta</legend>
+			<div class="form-group col-md-12 col-lg-12 pull-right">
+				<canvas class="canvas-thumbnail" id="canvasImagen" ng-class="imageSelected ? '' : 'my-drop-zone'" droppable drop="fileSelect(files)" ></canvas>
+			</div>
+			<div class="form-group col-md-12 col-lg-12">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Título
+					</span>
+					<input type="text" class="form-control" ng-model="oferta.titulo" placeholder="Título de la oferta" ng-required="true">
+					<span class="input-group-btn">
+						<button class="btn btn-default" ng-click="borrarCampo('titulo')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-12">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Descripción
+					</span>
+					<textarea rows="2" style="resize: none" class="form-control" ng-model="oferta.descripcion" placeholder="Descripción de la oferta" ng-required="true"></textarea>
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="borrarCampo('descripcion')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-6">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Desde
+					</span>
+					<input type="text" class="form-control" ng-model="oferta.fecha.desde" id="sucursalDesde" uib-datepicker-popup="{{ datePopUp[0].format }}" is-open="datePopUp[0].opened" datepicker-options="datePopUp[0].options" ng-required="true">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="abrirCalendar(0);"><span class="glyphicon glyphicon-calendar"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-6 pull-right">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Hasta
+					</span>
+					<input type="text" class="form-control" ng-model="oferta.fecha.hasta" id="sucursalHasta" uib-datepicker-popup="{{ datePopUp[1].format }}" is-open="datePopUp[1].opened" datepicker-options="datePopUp[1].options" ng-required="true">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="abrirCalendar(1);"><span class="glyphicon glyphicon-calendar"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-12">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Producto
+					</span>
+					<input type="text" class="form-control" ng-model="oferta.producto" placeholder="Producto en oferta" uib-typeahead="producto.id as producto.nombre for producto in getProductos($viewValue)" typeahead-template-url="autocomplete-producto" typeahead-editable="false" typeahead-input-formatter="formatProducto($model)" ng-required="true">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="borrarCampo('producto')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-6">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Edad desde
+					</span>
+					<input type="number" step="1" class="form-control" ng-model="oferta.edades.desde">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="borrarCampo('hasta', 'edades')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-6 pull-right">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Edad hasta
+					</span>
+					<input type="number" step="1" class="form-control" ng-model="oferta.edades.hasta">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="borrarCampo('hasta', 'edades')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-12">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Sexo
+					</span>
+					<select class="form-control" ng-model="oferta.sexo">
+						<option value="A">Indistinto</option>
+						<option value="M">Hombres</option>
+						<option value="F">Mujeres</option>
+					</select>
+					<span class="input-group-btn">
+						<button class="btn btn-default" ng-click="borrarCampo('sexo')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-12">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Sucursales
+					</span>
+					<tags-input ng-model="oferta.sucursales" display-property="nombre" placeholder="Agregue una sucursal" add-from-autocomplete-only="true" add-on-enter="false" ng-required="true">
+						<auto-complete source="buscarSucursales($query)"
+						               min-length="1"
+						               template="autocomplete-sucursal"></auto-complete>
+					</tags-input>
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="borrarCampo('sucursales')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-12">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Etiquetas
+					</span>
+					<tags-input ng-model="oferta.etiquetas" placeholder="Agregue una etiqueta"></tags-input>
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="borrarCampo('etiquetas')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="form-group col-md-12 col-lg-12">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Imagen
+					</span>
+					<input type="file" class="form-control" file-change handler="fileSelect(files)" accept="image/jpeg, image/x-png">
+					<span class="input-group-btn">
+						<button class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
+				</div>
+			</div>
+			<div class="col-lg-12">
+				<button type="submit" class="btn btn-primary pull-right">Guardar</button>
+			</div>
+		</fieldset>
+	</form>
+</div>
+
+<script type="text/ng-template" id="autocomplete-producto">
+	<a>
+		<img ng-src="http://localhost:3002/productos/imagen/{{match.model._id}}" width="64">
+		<span ng-bind-html="match.label | uibTypeaheadHighlight:query"></span>
+	</a>
+</script>
+
+<script type="text/ng-template" id="autocomplete-sucursal">
+	<div class="autocomplete-template">
+		<div class="left-panel">
+			<img ng-src="http://localhost:3002/sucursales/imagen/{{data._id}}">
+		</div>
+		<div class="right-panel">
+			<span ng-bind-html="$highlight($getDisplayText())"></span>
+			<!--<span>{{ data.direccion }}</span>-->
+		</div>
+	</div>
+</script>

@@ -44,13 +44,29 @@ myApp.controller('catalogoCtrl', ['$scope', 'catalogoFactory', 'sucursalesFactor
 
 		$scope.guardarProducto = function(){
 			console.log($scope.producto);
-
-			catalogoFactory.guardarProducto($scope.producto, function(response){
+			var arrayEtiqueta = [];
+			$scope.producto.etiquetas.forEach(function(etiqueta){
+				arrayEtiqueta.push(etiqueta.text)
+			});
+			var nuevoProducto = angular.copy($scope.producto);
+			nuevoProducto.etiquetas = arrayEtiqueta;
+			catalogoFactory.guardarProducto(nuevoProducto, function(response){
 				if (response.statusText == 'OK'){
 					if ($scope.uploader.queue.length > 0){
 						var fileItem = $scope.uploader.queue[0];
 						fileItem.url = fileItem.url + response.data._id;
 						$scope.uploader.uploadAll();
+					} else {
+						$scope.producto = {
+							nombre: '',
+							descripcion: '',
+							codigo: '',
+							precio: '',
+							sucursales: [],
+							etiquetas: []
+							//destacar:
+						};
+						console.log('todo OK');
 					}
 				}
 			});
@@ -75,6 +91,21 @@ myApp.controller('catalogoCtrl', ['$scope', 'catalogoFactory', 'sucursalesFactor
 
 				reader.readAsDataURL(file);
 			}
+		};
+
+		$scope.uploader.onSuccessItem = function(item, response, status, headers){
+			$scope.producto = {
+				nombre: '',
+				descripcion: '',
+				codigo: '',
+				precio: '',
+				sucursales: [],
+				etiquetas: []
+				//destacar:
+			};
+			$scope.imageSelected = false;
+			$scope.$broadcast('uploadFinish');
+			console.log('termino la subida');
 		};
 
 	}]);
