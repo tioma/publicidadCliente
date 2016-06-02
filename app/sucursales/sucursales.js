@@ -1,12 +1,15 @@
 /**
  * Created by Artiom on 01/04/2016.
  */
-myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesFactory', 'imagesService', 'FileUploader', '$q',
-	function($scope, uiGmapGoogleMapApi, sucursalesFactory, imagesService, FileUploader, $q){
+myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapApi', 'sucursalesFactory', 'imagesService', 'FileUploader', '$q', '$state',
+	function($scope, uiGmapIsReady, uiGmapGoogleMapApi, sucursalesFactory, imagesService, FileUploader, $q, $state){
 
 		//TODO verificar que los datos de la sucursal esten completos
 		//TODO cambiar metodo aca y en el servidor para la subida de imagenes
 		//TODO verificar que el archivo seleccionado sea una imagen jpeg
+
+		var mapsInstances = 1;
+		if ($state.current.name == 'sucursales.nueva') mapsInstances = 2;
 
 		$scope.calendarioDesde = false;
 		$scope.calendarioHasta = false;
@@ -17,50 +20,90 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 			removeAfterUpload: true
 		});
 
-		/*sucursalesFactory.obtenerSucursales(function(data){
-			console.log(data);
-			console.log("http://localhost:3002/sucursales/imagen/" + data[0]._id + '?size=');
-			/*var imageObj = new Image();
-			 imageObj.onload = function() {
-			 console.log('ya cargo la imagen');
-
-			 context.drawImage(imageObj, 0, 0);
-			 $scope.sucursal.imagen.data = canvas.toDataURL("image/jpeg").replace("data:image/jpeg;base64,", "");
-			 $scope.sucursal.imagen.contentType = "image/jpeg";
-			 //context.drawImage(imagen, 0, 0, 150, 120);
-			 console.log($scope.sucursal);
-			 };
-
-			 imageObj.crossOrigin="anonymous";
-			 imageObj.src = "http://localhost:3002/sucursales/imagen/" + data[0]._id;
-			 /*sucursalesFactory.imagenSucursal(data[0]._id, function(dataImagen){
-			 console.log(dataImagen);
-			 var blobImagen = new Blob(dataImagen, {type: 'image/jpeg'});
-			 var arrayImagen = [];
-			 arrayImagen.push(blobImagen);
-			 $scope.fileSelect(arrayImagen);
-			 /*var imagen = new Image();
-			 imagen.src = dataImagen;
-
-			 imagen.onload = function() {
-			 console.log('ya cargo la imagen');
-
-			 context.drawImage(imagen, 0, 0);
-			 $scope.sucursal.imagen.data = canvas.toDataURL("image/jpeg").replace("data:image/jpeg;base64,", "");
-			 $scope.sucursal.imagen.contentType = "image/jpeg";
-			 //context.drawImage(imagen, 0, 0, 150, 120);
-			 console.log($scope.sucursal);
-			 };
-			 })
-		});*/
-
-		$scope.map = {
+		$scope.mapPrincipal = {
 			center: { latitude: 45, longitude: -73 },
 			pan: true,
-			zoom: 12
+			zoom: 12,
+			control: {}
 		};
 
+		$scope.mapForm = {
+			center: { latitude: 45, longitude: -73 },
+			pan: true,
+			zoom: 12,
+			control: {}
+		};
+
+		$scope.dataSucursales = [];
+
+		//Sucursal elegida para editar
+		$scope.sucursalSelected = {};
+
+		$scope.abrirFormulario = function(nueva){
+			$scope.nueva = nueva;
+			$state.transitionTo('sucursales.nueva');
+		};
+
+		$scope.editarSucursal = function(){
+			console.log('holaaaa');
+			$scope.sucursal = $scope.sucursalSelected;
+			$scope.abrirFormulario(false);
+		};
+
+		//Espera hasta que las instancias de los mapas se carguen
+		//Traigo las sucursales cargadas y las muestro en el mapa principal
+		uiGmapIsReady.promise(mapsInstances).then(function(instances){
+
+			$scope.mapInstance = $scope.mapPrincipal.control.getGMap();
+
+			sucursalesFactory.obtenerSucursales({}, function(response){
+				if (response.statusText == 'OK'){
+					$scope.dataSucursales = response.data.map(function(curr, ind){
+						curr.position = {
+							latitude: curr.ubicacion.latitud,
+							longitude: curr.ubicacion.longitud
+						};
+						curr.options = {
+							visible: true,
+							title: curr.nombre
+						};
+						curr.id = ind;
+						return curr;
+					});
+				} else {
+					console.log('todo mal')
+				}
+			});
+		});
+
+		//Se ejecuta una vez que carga la librería de google maps
+		//Acá meto las funciones que utilizan la API de google
 		uiGmapGoogleMapApi.then(function(maps) {
+
+			$scope.infoWindow = null;
+
+			//Click sobre un marcador
+			$scope.markerClick = function(marker, ev, sucursal){
+				var content;
+				if ($scope.infoWindow != null) $scope.infoWindow.close();
+				if (sucursal.imagen.ready){
+					content = '<div id="iw-container">' +
+						'<div class="iw-title">' + sucursal.nombre + '</div>' +
+						'<div class="iw-content"><img src="http://localhost:3002/sucursales/imagen/' + sucursal._id + '" height="100">' + sucursal.direccion + '</div>' +
+							'<button type="button" class="btn btn-default" ng-click="$parent.editarSucursal()">Editar</button>' +
+						'</div>';
+				} else {
+					content = '<div id="iw-container">' +
+						'<div class="iw-title">' + sucursal.nombre + '</div>' +
+						'<div class="iw-content">' + sucursal.direccion + '</div>' +
+						'</div>';
+				}
+				$scope.sucursalSelected = sucursal;
+				$scope.infoWindow = new maps.InfoWindow({
+					content: content
+				});
+				$scope.infoWindow.open($scope.mapInstance, marker);
+			};
 
 			$scope.sucursalMarker = {
 				position: {
@@ -69,10 +112,12 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 				},
 				options: {
 					visible: false,
-					title: $scope.sucursal.nombre
+					title: $scope.sucursal.nombre,
+					label: $scope.sucursal.nombre
 				}
 			};
 
+			//Trae las direcciones a medida que voy escribiendo
 			$scope.getAdress = function(val){
 				var deferred = $q.defer();
 				var geocoder = new maps.Geocoder();
@@ -87,6 +132,7 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 				return deferred.promise;
 			};
 
+			//Marca la ubicación elegida en el mapa y setea los datos en la sucursal
 			$scope.getAddressSelected = function(address){
 				var latitud = address.geometry.location.lat();
 				var longitud = address.geometry.location.lng();
@@ -95,8 +141,8 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 				$scope.sucursalMarker.options.visible = true;
 				$scope.sucursalMarker.options.title = $scope.sucursal.nombre;
 
-				$scope.map.center.latitude = latitud;
-				$scope.map.center.longitude = longitud;
+				$scope.mapForm.center.latitude = latitud;
+				$scope.mapForm.center.longitude = longitud;
 
 				$scope.sucursal.direccion = address.formatted_address;
 				$scope.sucursal.ubicacion.latitud = latitud;
@@ -118,6 +164,7 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 
 		});
 
+		//Modelo para bindear al formulario y editar
 		$scope.sucursal = {
 			nombre: '',
 			descripcion: '',
@@ -138,10 +185,11 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 
 		$scope.imageSelected = false;
 
-		var canvas = document.getElementById("canvasImagen");
-		var context = canvas.getContext("2d");
+		//TODO crear directiva que manejar el file upload
+		/*var canvas = document.getElementById("canvasImagen");
+		var context = canvas.getContext("2d");*/
 
-		context.fillText("Arrastre una imagen aquí", 15, 60);
+		//context.fillText("Arrastre una imagen aquí", 15, 60);
 
 		$scope.fileSelect = function(files){
 			if (files.length > 0){
@@ -164,10 +212,13 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 			}
 		};
 
+		//Se ejecuta en el progreso de la subida, devuelve el porcentaje que se lleva completado
+		//TODO analizar el poner una barra para indicar el estado de la carga de la imagen
 		$scope.uploader.onProgressItem = function(fileItem, progress) {
 			console.info('onProgressItem', fileItem, progress);
 		};
 
+		//Se ejecuta cuando se termina de subir un archivo
 		$scope.uploader.onSuccessItem = function(item, response, status, headers){
 			$scope.sucursal = {
 				nombre: '',
@@ -213,6 +264,24 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapGoogleMapApi', 'sucursalesF
 						var fileItem = $scope.uploader.queue[0];
 						fileItem.url = fileItem.url + response.data._id;
 						$scope.uploader.uploadAll();
+					} else {
+						$scope.sucursal = {
+							nombre: '',
+							descripcion: '',
+							direccion: '',
+							ubicacion: {
+								latitud: '',
+								longitud: ''
+							},
+							localidad: '',
+							provincia: '',
+							pais: '',
+							horario: {
+								desde: new Date(2016, 1, 1, 9),
+								hasta: new Date(2016, 1, 1, 19)
+							},
+							telefonos: []
+						};
 					}
 				}
 			})

@@ -3,93 +3,17 @@
 	<div class="page-header">
 		<h1>Sucursales</h1>
 	</div>
-
-	<form class="col-lg-6 well form-horizontal" ng-submit="guardarSucursal()">
-		<fieldset>
-			<legend>Nueva sucursal</legend>
-			<div class="form-group col-md-12 col-lg-12 pull-right">
-				<canvas class="canvas-thumbnail" id="canvasImagen" ng-class="imageSelected ? '' : 'my-drop-zone'" droppable drop="fileSelect(files)" ></canvas>
-			</div>
-			<div class="form-group col-md-12 col-lg-12">
-				<div class="input-group">
-					<span class="input-group-addon">
-						Nombre
-					</span>
-					<input type="text" class="form-control" ng-model="sucursal.nombre" id="sucursalNombre" placeholder="Nombre de la sucursal" ng-required="true">
-					<span class="input-group-btn">
-						<button class="btn btn-default" ng-click="borrarCampo('nombre')"><span class="glyphicon glyphicon-remove"></span></button>
-					</span>
-				</div>
-			</div>
-			<div class="form-group col-md-12 col-lg-12">
-				<div class="input-group">
-					<span class="input-group-addon">
-						Dirección
-					</span>
-					<input type="text" class="form-control" ng-model="sucursal.direccion" id="sucursalDireccion" placeholder="Dirección de la sucursal"  typeahead-on-select="getAddressSelected($item)" uib-typeahead="adress.formatted_address for adress in getAdress($viewValue)" typeahead-editable="false" autocomplete="off" ng-required="true">
-					<span class="input-group-btn">
-						<button type="button" class="btn btn-default" ng-click="borrarCampo('direccion')"><span class="glyphicon glyphicon-remove"></span></button>
-					</span>
-				</div>
-			</div>
-			<div class="form-group col-md-12 col-lg-12">
-				<div class="input-group">
-					<span class="input-group-addon">
-						Teléfonos
-					</span>
-					<tags-input ng-model="sucursal.telefonos" min-length="1" allowed-tags-pattern="^[0-9]+$" ng-required="true" placeholder="Agrega un teléfono" display-property="numero" on-tag-added="agregarTelefonos($tag)"></tags-input>
-					<span class="input-group-btn">
-						<button type="button" class="btn btn-default" ng-click="borrarCampo('telefonos')"><span class="glyphicon glyphicon-remove"></span></button>
-					</span>
-				</div>
-			</div>
-			<div class="form-group col-md-12 col-lg-6">
-				<div class="input-group">
-					<span class="input-group-addon">
-						Desde
-					</span>
-					<input type="text" class="form-control" ng-model="sucursal.horario.desde" id="sucursalDesde" datetime-picker="HH:mm" is-open="calendarioDesde" enable-date="false" ng-required="true">
-					<span class="input-group-btn">
-						<button type="button" class="btn btn-default" ng-click="abrirCalendar($event); calendarioDesde = !calendarioDesde"><span class="glyphicon glyphicon-calendar"></span></button>
-					</span>
-				</div>
-			</div>
-			<div class="form-group col-md-12 col-lg-6 pull-right">
-				<div class="input-group">
-					<span class="input-group-addon">
-						Hasta
-					</span>
-					<input type="text" class="form-control" ng-model="sucursal.horario.hasta" id="sucursalHasta" datetime-picker="HH:mm" is-open="calendarioHasta" enable-date="false" ng-required="true">
-					<span class="input-group-btn">
-						<button type="button" class="btn btn-default" ng-click="abrirCalendar($event); calendarioHasta = !calendarioHasta"><span class="glyphicon glyphicon-calendar"></span></button>
-					</span>
-				</div>
-			</div>
-			<div class="form-group col-md-12 col-lg-12">
-				<div class="input-group">
-					<span class="input-group-addon">
-						Imagen
-					</span>
-					<input type="file" class="form-control" id="sucursalImagen" file-change handler="fileSelect(files)" accept="image/jpeg, image/x-png">
-					<span class="input-group-btn">
-						<button class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
-					</span>
-				</div>
-			</div>
-			<div class="col-lg-12">
-				<button type="submit" class="btn btn-primary pull-right">Guardar</button>
-			</div>
-		</fieldset>
-	</form>
-	<div class="col-lg-6">
-		<ui-gmap-google-map center="map.center" zoom='map.zoom'>
-			<ui-gmap-marker
-					idKey=1
-					coords="sucursalMarker.position"
-					options="sucursalMarker.options"
-			>
-			</ui-gmap-marker>
+	<div class="col-lg-12">
+		<button type="button" ng-click="abrirFormulario(true)" class="btn btn-default">Agregar sucursal</button>
+	</div>
+	<div class="col-lg-12">
+		<br>
+		<ui-gmap-google-map center="mapPrincipal.center" zoom='mapPrincipal.zoom' control="mapPrincipal.control">
+			<ui-gmap-markers models="dataSucursales" coords="'position'" options="'options'" fit="true" click="markerClick">
+			</ui-gmap-markers>
 
 		</ui-gmap-google-map>
 	</div>
+
+	<div ui-view></div>
 </div>

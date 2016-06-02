@@ -23,6 +23,9 @@ config(['$urlRouterProvider', '$stateProvider', function($urlRouterProvider, $st
 		url: '/sucursales',
 		templateUrl: "sucursales/sucursales.html",
 		controller: "sucursalesCtrl"
+	}).state('sucursales.nueva', {
+		url: '/nueva',
+		templateUrl: 'sucursales/sucursales.new.html'
 	}).state('catalogo', {
 		url: '/catalogo',
 		templateUrl: 'catalogo/catalogo.html',

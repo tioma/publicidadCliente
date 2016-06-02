@@ -4,20 +4,20 @@
 		<h1>Sucursales</h1>
 	</div>
 
-	<form class="col-lg-6 well form-horizontal">
+	<form class="col-lg-6 well form-horizontal" ng-submit="guardarSucursal()">
 		<fieldset>
 			<legend>Nueva sucursal</legend>
 			<div class="form-group col-md-12 col-lg-12 pull-right">
-				<canvas class="pull-right" id="canvasImagen" width="320" height="120" ng-class="imageSelected ? '' : 'my-drop-zone'" droppable drop="fileSelect(files)" ></canvas>
+				<canvas class="canvas-thumbnail" id="canvasImagen" ng-class="imageSelected ? '' : 'my-drop-zone'" droppable drop="fileSelect(files)" ></canvas>
 			</div>
 			<div class="form-group col-md-12 col-lg-12">
 				<div class="input-group">
 					<span class="input-group-addon">
 						Nombre
 					</span>
-					<input type="text" class="form-control" ng-model="sucursal.nombre" id="sucursalNombre" placeholder="Nombre de la sucursal">
+					<input type="text" class="form-control" ng-model="sucursal.nombre" id="sucursalNombre" placeholder="Nombre de la sucursal" ng-required="true">
 					<span class="input-group-btn">
-						<button class="btn btn-default" ng-click="borrarCampo(nombre)"><span class="glyphicon glyphicon-remove"></span></button>
+						<button class="btn btn-default" ng-click="borrarCampo('nombre')"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
 				</div>
 			</div>
@@ -26,13 +26,21 @@
 					<span class="input-group-addon">
 						Dirección
 					</span>
-					<input type="text" class="form-control" ng-model="sucursal.direccion" id="sucursalDireccion" placeholder="Dirección de la sucursal"  typeahead-on-select="getAddressSelected($item)" uib-typeahead="adress.formatted_address for adress in getAdress($viewValue)">
+					<input type="text" class="form-control" ng-model="sucursal.direccion" id="sucursalDireccion" placeholder="Dirección de la sucursal"  typeahead-on-select="getAddressSelected($item)" uib-typeahead="adress.formatted_address for adress in getAdress($viewValue)" typeahead-editable="false" autocomplete="off" ng-required="true">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="borrarCampo('direccion')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
 				</div>
 			</div>
 			<div class="form-group col-md-12 col-lg-12">
-				<label for="sucursalTelefono" class="col-lg-2 control-label">Teléfonos</label>
-				<div class="col-lg-10">
-					<input type="text" class="form-control" ng-model="telefonos" id="sucursalTelefono" placeholder="Teléfonos separados por coma" ng-blur="agregarTelefonos()">
+				<div class="input-group">
+					<span class="input-group-addon">
+						Teléfonos
+					</span>
+					<tags-input ng-model="sucursal.telefonos" min-length="1" allowed-tags-pattern="^[0-9]+$" ng-required="true" placeholder="Agrega un teléfono" display-property="numero" on-tag-added="agregarTelefonos($tag)"></tags-input>
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default" ng-click="borrarCampo('telefonos')"><span class="glyphicon glyphicon-remove"></span></button>
+					</span>
 				</div>
 			</div>
 			<div class="form-group col-md-12 col-lg-6">
@@ -40,7 +48,7 @@
 					<span class="input-group-addon">
 						Desde
 					</span>
-					<input type="text" class="form-control" ng-model="sucursal.horario.desde" id="sucursalDesde" datetime-picker="HH:mm" is-open="calendarioDesde" enable-date="false">
+					<input type="text" class="form-control" ng-model="sucursal.horario.desde" id="sucursalDesde" datetime-picker="HH:mm" is-open="calendarioDesde" enable-date="false" ng-required="true">
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default" ng-click="abrirCalendar($event); calendarioDesde = !calendarioDesde"><span class="glyphicon glyphicon-calendar"></span></button>
 					</span>
@@ -51,7 +59,7 @@
 					<span class="input-group-addon">
 						Hasta
 					</span>
-					<input type="text" class="form-control" ng-model="sucursal.horario.hasta" id="sucursalHasta" datetime-picker="HH:mm" is-open="calendarioHasta" enable-date="false">
+					<input type="text" class="form-control" ng-model="sucursal.horario.hasta" id="sucursalHasta" datetime-picker="HH:mm" is-open="calendarioHasta" enable-date="false" ng-required="true">
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-default" ng-click="abrirCalendar($event); calendarioHasta = !calendarioHasta"><span class="glyphicon glyphicon-calendar"></span></button>
 					</span>
@@ -64,17 +72,18 @@
 					</span>
 					<input type="file" class="form-control" id="sucursalImagen" file-change handler="fileSelect(files)" accept="image/jpeg, image/x-png">
 					<span class="input-group-btn">
-						<button class="btn btn-default" ng-click="borrarImagen()"><span class="glyphicon glyphicon-remove"></span></button>
+						<button class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
 					</span>
 				</div>
 			</div>
-			<div class="col-lg-12">
-				<button class="btn btn-primary pull-right" ng-click="guardarSucursal()">Guardar</button>
+			<div class="col-lg-12 text-right">
+				<button type="submit" class="btn btn-primary">Guardar</button>
+				<button type="button" ui-sref="sucursales" class="btn btn-default">Volver</button>
 			</div>
 		</fieldset>
 	</form>
 	<div class="col-lg-6">
-		<ui-gmap-google-map center="map.center" zoom='map.zoom'>
+		<ui-gmap-google-map center="mapForm.center" zoom='mapForm.zoom'>
 			<ui-gmap-marker
 					idKey=1
 					coords="sucursalMarker.position"

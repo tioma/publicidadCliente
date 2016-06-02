@@ -1,8 +1,8 @@
 /**
  * Created by Artiom on 11/05/2016.
  */
-myApp.controller('ofertasCtrl', ['$scope', 'catalogoFactory', 'sucursalesFactory', '$q', 'FileUploader',
-	function($scope, catalogoFactory, sucursalesFactory, $q, FileUploader){
+myApp.controller('ofertasCtrl', ['$scope', 'catalogoFactory', 'sucursalesFactory', 'ofertasFactory', '$q', 'FileUploader',
+	function($scope, catalogoFactory, sucursalesFactory, ofertasFactory, $q, FileUploader){
 
 		$scope.imageSelected = false;
 
@@ -89,8 +89,54 @@ myApp.controller('ofertasCtrl', ['$scope', 'catalogoFactory', 'sucursalesFactory
 			}
 		};
 
-		$scope.guardarOferta = function(){
+		$scope.uploader.onSuccessItem = function(item, response, status, headers){
+			$scope.oferta = {
+				titulo: '',
+				descripcion: '',
+				fecha: {
+					desde: new Date(),
+					hasta: new Date()
+				},
+				producto: '',
+				edades: {
+					desde: 0,
+					hasta: 99
+				},
+				sexo: '',
+				sucursales: [],
+				etiquetas: []
+			};
+			$scope.imageSelected = false;
+			$scope.$broadcast('uploadFinish');
+		};
 
+		$scope.guardarOferta = function(){
+			ofertasFactory.guardarOferta($scope.oferta, function(response){
+				if (response.statusText == 'OK'){
+					if ($scope.uploader.queue.length > 0){
+						var fileItem = $scope.uploader.queue[0];
+						fileItem.url = fileItem.url + response.data._id;
+						$scope.uploader.uploadAll();
+					} else {
+						$scope.oferta = {
+							titulo: '',
+							descripcion: '',
+							fecha: {
+								desde: new Date(),
+								hasta: new Date()
+							},
+							producto: '',
+							edades: {
+								desde: 0,
+								hasta: 99
+							},
+							sexo: '',
+							sucursales: [],
+							etiquetas: []
+						};
+					}
+				}
+			})
 		}
 
 	}]);
