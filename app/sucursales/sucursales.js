@@ -1,8 +1,8 @@
 /**
  * Created by Artiom on 01/04/2016.
  */
-myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapApi', 'sucursalesFactory', 'imagesService', 'FileUploader', '$q', '$state',
-	function($scope, uiGmapIsReady, uiGmapGoogleMapApi, sucursalesFactory, imagesService, FileUploader, $q, $state){
+myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapApi', 'sucursalesFactory', 'imagesService', 'FileUploader', '$q', '$state', '$compile',
+	function($scope, uiGmapIsReady, uiGmapGoogleMapApi, sucursalesFactory, imagesService, FileUploader, $q, $state, $compile){
 
 		//TODO verificar que los datos de la sucursal esten completos
 		//TODO cambiar metodo aca y en el servidor para la subida de imagenes
@@ -46,7 +46,25 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 
 		$scope.editarSucursal = function(){
 			console.log('holaaaa');
+			$scope.sucursalSelected.horario.desde = new Date(2016, 1, 1, $scope.sucursalSelected.horario.desde % 60, $scope.sucursalSelected.horario.desde - ($scope.sucursalSelected.horario.desde % 60 * 60))
+			$scope.sucursalSelected.horario.hasta = new Date(2016, 1, 1, $scope.sucursalSelected.horario.hasta % 60, $scope.sucursalSelected.horario.hasta - ($scope.sucursalSelected.horario.hasta % 60 * 60))
 			$scope.sucursal = $scope.sucursalSelected;
+
+			$scope.mapForm.center.latitude = $scope.sucursal.ubicacion.latitud;
+			$scope.mapForm.center.longitude = $scope.sucursal.ubicacion.longitud;
+
+			$scope.sucursalMarker = {
+				position: {
+					latitude: $scope.sucursal.ubicacion.latitud,
+					longitude: $scope.sucursal.ubicacion.longitud
+				},
+				options: {
+					visible: true,
+					title: $scope.sucursal.nombre
+				}
+			};
+
+			console.log($scope.sucursal);
 			$scope.abrirFormulario(false);
 		};
 
@@ -90,17 +108,20 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 					content = '<div id="iw-container">' +
 						'<div class="iw-title">' + sucursal.nombre + '</div>' +
 						'<div class="iw-content"><img src="http://localhost:3002/sucursales/imagen/' + sucursal._id + '" height="100">' + sucursal.direccion + '</div>' +
-							'<button type="button" class="btn btn-default" ng-click="$parent.editarSucursal()">Editar</button>' +
+							'<button type="button" class="btn btn-default" ng-click="editarSucursal()">Editar</button>' +
 						'</div>';
 				} else {
 					content = '<div id="iw-container">' +
 						'<div class="iw-title">' + sucursal.nombre + '</div>' +
 						'<div class="iw-content">' + sucursal.direccion + '</div>' +
+						'<button type="button" class="btn btn-default" ng-click="editarSucursal()">Editar</button>' +
 						'</div>';
 				}
+				var compiledContent = $compile(content)($scope);
+
 				$scope.sucursalSelected = sucursal;
 				$scope.infoWindow = new maps.InfoWindow({
-					content: content
+					content: compiledContent[0]
 				});
 				$scope.infoWindow.open($scope.mapInstance, marker);
 			};
@@ -112,8 +133,7 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 				},
 				options: {
 					visible: false,
-					title: $scope.sucursal.nombre,
-					label: $scope.sucursal.nombre
+					title: $scope.sucursal.nombre
 				}
 			};
 
