@@ -4,15 +4,27 @@
 myApp.factory('sucursalesFactory', ['$http', 'connectionService', function($http, connectionService){
 
 	return {
-		guardarSucursal: function(sucursal, callback){
-			var inserturl = connectionService.serverUrl + '/sucursales/nueva';
-			$http.post(inserturl, sucursal).then(function(response){
-				console.log(response);
-				callback(response);
-			}, function(response){
-				console.log(response);
-				callback(response);
-			})
+		guardarSucursal: function(nueva, sucursal, callback){
+			var inserturl;
+			if (nueva){
+				inserturl = connectionService.serverUrl + '/sucursales/nueva';
+				$http.post(inserturl, sucursal).then(function(response){
+					console.log(response);
+					callback(response);
+				}, function(response){
+					console.log(response);
+					callback(response);
+				})
+			} else {
+				inserturl = connectionService.serverUrl + '/sucursales/guardar/' + sucursal._id;
+				$http.put(inserturl, sucursal).then(function(response){
+					console.log(response);
+					callback(response);
+				}, function(response){
+					console.log(response);
+					callback(response);
+				})
+			}
 		},
 		obtenerSucursales: function(param, callback){
 			var inserturl = connectionService.serverUrl + '/sucursales/';

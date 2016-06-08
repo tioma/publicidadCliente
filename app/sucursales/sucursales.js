@@ -1,8 +1,8 @@
 /**
  * Created by Artiom on 01/04/2016.
  */
-myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapApi', 'sucursalesFactory', 'imagesService', 'FileUploader', '$q', '$state', '$compile',
-	function($scope, uiGmapIsReady, uiGmapGoogleMapApi, sucursalesFactory, imagesService, FileUploader, $q, $state, $compile){
+myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapApi', 'sucursalesFactory', 'imagesService', 'FileUploader', '$q', '$state', '$compile', 'dialogs',
+	function($scope, uiGmapIsReady, uiGmapGoogleMapApi, sucursalesFactory, imagesService, FileUploader, $q, $state, $compile, dialogs){
 
 		//TODO verificar que los datos de la sucursal esten completos
 		//TODO cambiar metodo aca y en el servidor para la subida de imagenes
@@ -42,10 +42,40 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 		$scope.abrirFormulario = function(nueva){
 			$scope.nueva = nueva;
 			$state.transitionTo('sucursales.nueva');
+
+			if ($scope.nueva){
+				$scope.sucursal = {
+					nombre: '',
+					descripcion: '',
+					direccion: '',
+					ubicacion: {
+						latitud: '',
+						longitud: ''
+					},
+					localidad: '',
+					provincia: '',
+					pais: '',
+					horario: {
+						desde: new Date(2016, 1, 1, 9),
+						hasta: new Date(2016, 1, 1, 19)
+					},
+					telefonos: []
+				};
+			} else if($scope.sucursal.imagen.ready) {
+				var imagen = new Image();
+				imagen.src = 'http://localhost:3002/sucursales/imagen/' + $scope.sucursal._id;
+
+				imagen.onload = function() {
+					var canvas = document.getElementById("canvasImagen");
+					var context = canvas.getContext("2d");
+
+					context.drawImage(imagen, 0, 0, 150, imagesService.getImageProportion(imagen, 150));
+					$scope.imageSelected = true;
+				};
+			}
 		};
 
 		$scope.editarSucursal = function(){
-			console.log('holaaaa');
 			$scope.sucursalSelected.horario.desde = new Date(2016, 1, 1, $scope.sucursalSelected.horario.desde % 60, $scope.sucursalSelected.horario.desde - ($scope.sucursalSelected.horario.desde % 60 * 60))
 			$scope.sucursalSelected.horario.hasta = new Date(2016, 1, 1, $scope.sucursalSelected.horario.hasta % 60, $scope.sucursalSelected.horario.hasta - ($scope.sucursalSelected.horario.hasta % 60 * 60))
 			$scope.sucursal = $scope.sucursalSelected;
@@ -74,24 +104,29 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 
 			$scope.mapInstance = $scope.mapPrincipal.control.getGMap();
 
-			sucursalesFactory.obtenerSucursales({}, function(response){
-				if (response.statusText == 'OK'){
-					$scope.dataSucursales = response.data.map(function(curr, ind){
-						curr.position = {
-							latitude: curr.ubicacion.latitud,
-							longitude: curr.ubicacion.longitud
-						};
-						curr.options = {
-							visible: true,
-							title: curr.nombre
-						};
-						curr.id = ind;
-						return curr;
-					});
-				} else {
-					console.log('todo mal')
-				}
-			});
+			$scope.cargarSucursales = function(){
+				sucursalesFactory.obtenerSucursales({}, function(response){
+					if (response.statusText == 'OK'){
+						$scope.dataSucursales = response.data.map(function(curr, ind){
+							curr.position = {
+								latitude: curr.ubicacion.latitud,
+								longitude: curr.ubicacion.longitud
+							};
+							curr.options = {
+								visible: true,
+								title: curr.nombre
+							};
+							curr.id = ind;
+							return curr;
+						});
+					} else {
+						console.log('todo mal')
+					}
+				});
+			};
+
+			$scope.cargarSucursales();
+
 		});
 
 		//Se ejecuta una vez que carga la librería de google maps
@@ -103,6 +138,7 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 			//Click sobre un marcador
 			$scope.markerClick = function(marker, ev, sucursal){
 				var content;
+				console.log(sucursal);
 				if ($scope.infoWindow != null) $scope.infoWindow.close();
 				if (sucursal.imagen.ready){
 					content = '<div id="iw-container">' +
@@ -206,12 +242,14 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 		$scope.imageSelected = false;
 
 		//TODO crear directiva que manejar el file upload
-		/*var canvas = document.getElementById("canvasImagen");
-		var context = canvas.getContext("2d");*/
+
 
 		//context.fillText("Arrastre una imagen aquí", 15, 60);
 
 		$scope.fileSelect = function(files){
+			var canvas = document.getElementById("canvasImagen");
+			var context = canvas.getContext("2d");
+
 			if (files.length > 0){
 				var file = files[0];
 				var reader = new FileReader();
@@ -232,9 +270,16 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 			}
 		};
 
+		$scope.borrarImagen = function(){
+			if ($scope.uploader.queue.length > 0){
+				$scope.uploader.clearQueue();
+				$scope.$broadcast('uploadFinish');
+			}
+		};
+
 		//Se ejecuta en el progreso de la subida, devuelve el porcentaje que se lleva completado
 		//TODO analizar el poner una barra para indicar el estado de la carga de la imagen
-		$scope.uploader.onProgressItem = function(fileItem, progress) {
+		$scope.uploader.onProgressItem = function(fileItem, progress){
 			console.info('onProgressItem', fileItem, progress);
 		};
 
@@ -259,6 +304,8 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 			};
 			$scope.imageSelected = false;
 			$scope.$broadcast('uploadFinish');
+			dialogs.notify('Nueva sucursal', 'Los datos de la sucursal han sido guardados correctamente');
+			$scope.cargarSucursales();
 		};
 
 		$scope.borrarCampo = function(campo){
@@ -278,7 +325,7 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 
 		$scope.guardarSucursal = function(){
 
-			sucursalesFactory.guardarSucursal($scope.sucursal, function(response){
+			sucursalesFactory.guardarSucursal($scope.nueva, $scope.sucursal, function(response){
 				if (response.statusText == 'OK'){
 					if ($scope.uploader.queue.length > 0){
 						var fileItem = $scope.uploader.queue[0];
@@ -302,7 +349,11 @@ myApp.controller('sucursalesCtrl', ['$scope', 'uiGmapIsReady', 'uiGmapGoogleMapA
 							},
 							telefonos: []
 						};
+						dialogs.notify('Nueva sucursal', 'Los datos de la sucursal han sido guardados correctamente');
+						$scope.cargarSucursales();
 					}
+				} else {
+					dialogs.error('Error', 'Se produjo un error al intentar guardar los datos de la sucursal.');
 				}
 			})
 		};
